@@ -1,12 +1,10 @@
-#include "lcm32f039_conf.h"
 #include "lcm32f039.h"
+#include "lcm32f039_conf.h"
 #include "lcm32f039_rcc.h"
 #include "lcm32f039_gpio.h"
 #include "lcm32f039_tim.h"
 #include "lcm32f039_acmp.h"
-#include "lcm32f039_dma.h"
 #include "Timer_Init.h"
-#include "SysProtection.h"
 
 /*******************************************************************************
 * Function Name  : GPIO_Configuration
@@ -15,6 +13,13 @@
 * Output         : None
 * Return         : None
 *******************************************************************************/
+/*
+ * TIM1 初始化：
+ * CH1/CH2/CH3 产生三相互补 PWM；CH4 触发 ADC 同步采样；
+ * Break 输入接硬件比较器，用于独立于软件的快速过流关断。
+ * 本函数只配置外设，不启动计数器；计数器在 NVIC_Config() 末尾启动，
+ * 确保 main() 已经初始化所有控制变量。
+ */
 void TIM1_Config(void)
 {
 		/* TIM1 clock enable */
@@ -26,8 +31,7 @@ void TIM1_Config(void)
 		TIM_BDTRInitTypeDef				TIM_BDTRInitStructure;
 
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM1 , ENABLE);
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM15 , ENABLE);
-		/* Time Base configuration */
+				/* Time Base configuration */
 		TIM_TimeBaseStructure.TIM_Prescaler = 0x0;
 		TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_CenterAligned2;
 		TIM_TimeBaseStructure.TIM_Period = UP_PWM_PERIOD;
@@ -202,15 +206,13 @@ void TIM3Configuration(void)
 	
 }
 
+/*
+ * TIM14 低速任务：96 MHz/(191+1)/(1000+1) ≈ 499.5 Hz。
+ * 该任务只更新 I/F 频率和 Iq 参考斜坡，不执行快速电流 PI。
+ */
 void TIM14_Config(void)
 {
-	NVIC_InitTypeDef NVIC_InitStructure;
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-
-//	NVIC_InitStructure.NVIC_IRQChannel = TIM14_IRQn;
-//	NVIC_InitStructure.NVIC_IRQChannelPriority = 2;
-//	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-//	NVIC_Init(&NVIC_InitStructure);
+    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 
 	RCC_APB0PeriphClockCmd(RCC_APB0Periph_TIM14, ENABLE);
 	TIM_TimeBaseStructure.TIM_Prescaler = 191; 

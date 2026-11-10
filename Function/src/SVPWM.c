@@ -33,6 +33,12 @@ void Invter_Init(void)
 	PWM_Calc.LastSector = 0;
 }
 
+/*
+ * SVPWM 空间矢量调制：
+ * 先用 Vα/Vβ 判断所在扇区，再计算相邻两个有效矢量作用时间 T1/T2，
+ * 剩余时间 T0 平分到 PWM 周期两端，最后换算成 U/V/W 三相比较值。
+ * Vbus 标幺值用于母线电压补偿；母线读数无效时不做除零运算。
+ */
 void Invter_Calc(void)
 {
 #define c0To60Degree 	    6
@@ -53,14 +59,20 @@ void Invter_Calc(void)
 	DIV_Result result0, result1;
 
 	#if (BUS_Detect_En == 1)	
-	temp2 = SQRT3<<10;
+	temp2 = SQRT3 << 10;
+
+    /*
+     * 直流母线标幺电压为 0 时不能做除法。
+     * 这通常出现在上电、欠压或 ADC 尚未稳定的阶段；
+     * 先使用单位补偿系数，欠压保护会阻止电机进入正常运行。
+     */
     if (SysPara.DcBusFiltered <= 0)
     {
         temp1 = 1024;
     }
     else
     {
-        temp1 = Fun_32_DIV_32(temp2, SysPara.DcBusFiltered, &result0);
+        temp1 = (s32)Fun_32_DIV_32(temp2, SysPara.DcBusFiltered, &result0);
     }
 
 	//temp1 = (s16)((SQRT3<<10)/SysPara.DcBusFiltered);//q10
@@ -237,6 +249,10 @@ void Invter_Calc(void)
 	}
 }
 
+/*
+ * 将三相 SVPWM 比较值写入 TIM1 预装载寄存器。
+ * CCR4 固定在原参考工程的采样触发位置，用于 TIM1_TRGO 同步 ADC。
+ */
 void Update_PWM(void)
 {
 	TIM1->CCR1 = PWM_Calc.UCMP;//大小直接代表下桥的占空比	
@@ -246,6 +262,7 @@ void Update_PWM(void)
 	TIM1->CCR4 = 200;//1;//PWM_Calc.PwmTBPRD - 100;//1;//PWM_Calc.PwmTBPRD - 100;//*3/2 // To Syncronyze the ADC
 }
 
+/* 打开三相上下桥输出。只有 offset/calibration ready 且状态机允许时调用。 */
 void PWMOutputs_ENABLE(void)
 {
 //	TIM_CCxCmd(TIM1, TIM_Channel_1, TIM_CCx_Enable);
@@ -261,6 +278,7 @@ void PWMOutputs_ENABLE(void)
 	TIM1->CCER = 0X1555;//全开1555，只开下1CCC，千万区分1555和1CCC；
 }
 
+/* 通过 TIM1 Break 事件关闭主输出使能，作为软件关断路径。 */
 void PWMOutputs_DISABLE(void)
 {
 //	TIM_CCxCmd(TIM1, TIM_Channel_1, TIM_CCx_Disable);

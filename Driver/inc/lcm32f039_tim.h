@@ -1,9 +1,12 @@
 #ifndef LCM32F039_TIM_H
 #define LCM32F039_TIM_H
 
-#include "stdint.h"
-#include "core_cm0.h"
+/*
+ * lcm32f039.h 先定义 IRQn_Type / __NVIC_PRIO_BITS，
+ * 再由设备头文件包含 core_cm0.h。不能把 core_cm0.h 放在设备头文件前面。
+ */
 #include "lcm32f039.h"
+#include "stdint.h"
 
 /*******************  Bit definition for TIM_CR1 register  ********************/
 #define TIM_CR1_CEN ((uint32_t)0x0001)  /*!<Counter enable */

@@ -6,19 +6,20 @@
 //  
 
 #include "Math.h"
-#include "CurrentLoop.h"
 #include "function.h"
 
 IPARK_T ipark1 = IPARK_DEFAULTS;
 PARK_T park1 = PARK_DEFAULTS;
-PARK_T park2 = PARK_DEFAULTS;
 CLARKE_T clarke1 = CLARKE_DEFAULTS;
 
-void IPARK_MACRO1(IPARK_T *v);
+void IPARK_MACRO1(volatile IPARK_T *v);
 void PARK_MACRO1(PARK_T *v);
 void CLARKE_MACRO1(CLARKE_T *v);
 
-/*--------------------Private macro ------------------*/
+/*
+ * æ­£å¼¦/ä½™å¼¦æŸ¥è¡¨ï¼š256 ä¸ªé‡‡æ ·ç‚¹è¦†ç›– 0~90Â°ï¼Œé€šè¿‡è±¡é™æ˜ å°„å¾—åˆ°å…¨å‘¨ã€‚
+ * è¡¨ä¸­æ•°æ®ä¸º Q15ï¼Œ32767 çº¦ç­‰äº 1.0ã€‚
+ */
 #define SIN_COS_TABLE {\
 0x0000,0x00C9,0x0192,0x025B,0x0324,0x03ED,0x04B6,0x057F,\
 0x0648,0x0711,0x07D9,0x08A2,0x096A,0x0A33,0x0AFB,0x0BC4,\
@@ -53,22 +54,6 @@ void CLARKE_MACRO1(CLARKE_T *v);
 0x7F61,0x7F74,0x7F86,0x7F97,0x7FA6,0x7FB4,0x7FC1,0x7FCD,\
 0x7FD8,0x7FE1,0x7FE9,0x7FF0,0x7FF5,0x7FF9,0x7FFD,0x7FFE}
 
-/*--------------------274:99¡æ  3901£º-30¡æ ------------------*/
-#define TEMPERATURE_TABLE {\
-274,282,289,297,305,313,322,331,340,350,\
-359,369,380,390,401,413,424,436,449,461,\
-475,488,502,517,531,547,562,579,595,613,\
-630,649,667,687,707,727,748,770,792,815,\
-839,863,888,913,940,966,994,1022,1051,1081,\
-1112,1143,1175,1207,1241,1275,1310,1345,1382,1419,\
-1456,1495,1534,1574,1614,1655,1696,1739,1781,1825,\
-1868,1912,1957,2002,2047,2093,2139,2185,2231,2278,\
-2324,2371,2417,2464,2510,2556,2602,2648,2693,2738,\
-2783,2827,2870,2913,2955,2997,3038,3078,3118,3157,\
-3195,3232,3268,3303,3338,3371,3404,3435,3466,3496,\
-3524,3552,3579,3605,3630,3654,3677,3699,3720,3741,\
-3760,3779,3797,3814,3830,3846,3861,3875,3888,3901}
-
 #define SIN_MASK        0x0300u
 #define U0_90           0x0200u
 #define U90_180         0x0300u
@@ -77,240 +62,14 @@ void CLARKE_MACRO1(CLARKE_T *v);
 
 /*------------------- Private variables ---------------*/
 const int16_t hSin_Cos_Table[256] = SIN_COS_TABLE;
-const int16_t hTEMPERATURE_TABLE[130] = TEMPERATURE_TABLE;
 /*------------------ Private functions ----------------*/
 Trig_Components MCM_Trig_Functions(int16_t hAngle);
-s32 MCM_Sqrt(s32 wInput);
-int16_t arctan2(int16_t y1,int16_t x1);
-s16 GetTemperature(vu32 ADCvalue);
 
-/*************************************
-	º¯ÊıÃû£ºGetTemperature
-	ÃèÊö£º¼ÆËãÎÂ¶È
-	ÊäÈë£ºADCvalue---12Î»ADC²ÉÑùÖµ
-	Êä³ö£ºTemperature---ÎÂ¶ÈÖµ£¬µ¥Î»¡æ
-**************************************/
-s16 GetTemperature(vu32 ADCvalue)
-{
-	u16 high,low,middle;
-	s16 Temperature;
-	high = 129;
-	low = 0;
-	while(1)
-	{
-   	middle=(high+low)>>1;
-		if(ADCvalue>hTEMPERATURE_TABLE[middle])
-		{
-			low = (high+low)>>1;
-		}
-		else if (ADCvalue<hTEMPERATURE_TABLE[middle])
-		{
-			high = (high+low)>>1;
-		}
-		else
-		{
-			Temperature = 99-middle;
-			break;
-		}
-		if(high == low+1)
-		{
-			Temperature = 99-middle;
-			break;
-		}
-	}
-	
-	return Temperature;	
-}
-
-/*************************************
-	º¯ÊıÃû£ºMCM_Trig_Functions
-	ÃèÊö£º½Ç¶È²é±íÕıÓàÏÒ
-	ÊäÈë£ºhAngle---[-32768,32767]
-	Êä³ö£ºTrig_Components---ÕıÓàÏÒ½á¹¹Ìå
-**************************************/
-Trig_Components MCM_Trig_Functions(int16_t hAngle)
-{
-  s32 shindex;
-  u16 uhindex;
-  
-  Trig_Components Local_Components;
-  
-  /* 10 bit index computation  */  
-  shindex =((s32)32768 + (s32)hAngle); 
-  uhindex = (u16)shindex;
-  uhindex /= (u16)64;      
-  
-  switch ((u16)(uhindex) & SIN_MASK) 
-  {
-		case U0_90:
-			Local_Components.hSin = hSin_Cos_Table[(u8)(uhindex)];
-			Local_Components.hCos = hSin_Cos_Table[(u8)(0xFFu-(u8)(uhindex))];
-			break;
-		
-		case U90_180:  
-			 Local_Components.hSin = hSin_Cos_Table[(u8)(0xFFu-(u8)(uhindex))];
-			 Local_Components.hCos = -hSin_Cos_Table[(u8)(uhindex)];
-			break;
-		
-		case U180_270:
-			 Local_Components.hSin = -hSin_Cos_Table[(u8)(uhindex)];
-			 Local_Components.hCos = -hSin_Cos_Table[(u8)(0xFFu-(u8)(uhindex))];
-			break;
-		
-		case U270_360:
-			 Local_Components.hSin =  -hSin_Cos_Table[(u8)(0xFFu-(u8)(uhindex))];
-			 Local_Components.hCos =  hSin_Cos_Table[(u8)(uhindex)]; 
-			break;
-		default:
-			break;
-  }
-  return (Local_Components);
-}
-
-
-/*************************************
-	º¯ÊıÃû£ºMCM_Sqrt
-	ÃèÊö£ºÆ½·½¸ù¼ÆËã
-	ÊäÈë£ºwInput---¼ÆËãÖµ
-	Êä³ö£ºwtemprootnew---Æ½·½¸ù
-**************************************/
-s32 MCM_Sqrt(s32 wInput)
-{
-  u8 biter = 0u;
-  s32 wtemproot;
-  s32 wtemprootnew;
-
-  if (wInput > 0)
-  {
-    
-    if (wInput <= (s32)2097152)
-    {
-      wtemproot = (s32)128;
-    }
-    else
-    {
-      wtemproot = (s32)8192;
-    }
-    
-    do
-    {
-      wtemprootnew = (wtemproot + wInput/wtemproot)/(s32)2;
-      if (wtemprootnew == wtemproot)
-      {
-        biter = 6u;
-      }
-      else
-      {
-        biter ++;
-        wtemproot = wtemprootnew;
-      }
-    }
-    while (biter < 6u);
-  }
-  else
-  {
-    wtemprootnew = (s32)0;
-  }
-  
-  return (wtemprootnew); 
-}
-
-/*************************************
-	º¯ÊıÃû£ºarctan2
-	ÃèÊö£º·´ÕıÇĞº¯Êı
-	ÊäÈë£ºy1---ÕıÏÒÖµ
-				x1---ÓàÏÒÖµ
-        ÊäÈë16Î»ÓĞ·ûºÅĞÍ±äÁ¿
-	Êä³ö£ºresult---·´ÕıÇĞÖµ
-        Êä³ö-32768~32767¶ÔÓ¦-pi~pi
-**************************************/
-s16 arctan2(s16 y1,s16 x1)
-{
-	s32 a;
-	s32 ay,ax;
-	s32 x;
-	s32 result;
-	s32 sw;
-	
-	sw = 0;
-	
-	if(y1<0)
-	{
-		ay = -y1;
-	}
-	else
-	{
-		ay = y1;
-	}
-	
-	if(x1<0)
-	{
-		ax = -x1;
-	}
-	else
-	{
-		ax = x1;
-	}
-	
-	if(ay>ax)
-	{
-		a = ay;
-		ay = ax;
-		ax = a;
-		sw = 1;
-	}
-	
-	if(ax == 0)
-	{
-		return 0;
-	}
-	else
-	{
-		x = ((ay<<15)/ax);
-		
-		if(x == 0x8000)
-		{
-			result = 0x2000;
-		}
-		else
-		{
-			a = ((0x118b<<13) - x*0x96)>>13;
-			a = (-(0x4306<<14) + a*x)>>16;
-			a = ((0x364<<12) + a*x)>>15;
-			a = ((0x5179<<14) + a*x)>>15;
-			
-			result = (a*x)>>15;
-		}
-		
-		if(sw == 1)
-		{
-			result = 0x4000 - result;
-		}
-		
-		if(x1>=0)
-		{
-			if(y1<0)	
-			{
-				result = -result;
-			}
-		}
-		else
-		{
-			if(y1>=0)
-			{
-				result = 0x8000 - result;
-			}
-			else
-			{
-				result = -(0x8000 - result);
-			}
-		}
-		
-		return result;
-	}
-}
-
-void IPARK_MACRO1(IPARK_T *v)											
+/*
+ * å Parkï¼šæŠŠç”µæµ PI è¾“å‡ºçš„æ—‹è½¬åæ ‡ç”µå‹ Vd/Vq è½¬ä¸ºé™æ­¢åæ ‡ VÎ±/VÎ²ã€‚
+ * æœ¬å‘¨æœŸå¿…é¡»ä½¿ç”¨ä¸ Park åé¦ˆç›¸åŒçš„ç”µæ°”è§’åº¦ã€‚
+ */
+void IPARK_MACRO1(volatile IPARK_T *v)
 {			
 	Trig_Components Local_Vector_Components;
 	
@@ -322,6 +81,10 @@ void IPARK_MACRO1(IPARK_T *v)
 	v->Beta  = (v->Qs * v->Cos + v->Ds * v->Sin) >> 15;
 }
 
+/*
+ * Parkï¼šæŠŠé™æ­¢åæ ‡ IÎ±/IÎ² æŠ•å½±åˆ°è½¬å­ç£åœºåæ ‡ï¼Œå¾—åˆ° Id/Iqã€‚
+ * Sin/Cos ä¸º Q15ï¼Œç”µæµä¸º Q14ï¼Œä¹˜ç§¯å³ç§» 15 ä½åä»ä¸º Q14ã€‚
+ */
 void PARK_MACRO1(PARK_T *v)
 {
 	Trig_Components Local_Vector_Components;
@@ -334,6 +97,10 @@ void PARK_MACRO1(PARK_T *v)
 	v->Qs = (v->Beta * v->Cos - v->Alpha * v->Sin) >> 15;	
 }
 
+/*
+ * Clarkeï¼šä¸¤ç”µé˜»å·²é‡æ„ç¬¬ä¸‰ç›¸ã€‚IÎ± = Iuï¼ŒIÎ² = (Iu + 2*Iv)/sqrt(3)ã€‚
+ * è¾“å…¥è¾“å‡ºå‡ä¸º Q14ï¼›INV_SQRT3 ç³»æ•°ä¸º Q13ï¼Œå› æ­¤ä¹˜ç§¯å³ç§» 13 ä½ã€‚
+ */
 void CLARKE_MACRO1(CLARKE_T *v)
 {
 	s16 TempA;

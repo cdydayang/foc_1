@@ -62,6 +62,83 @@ void CLARKE_MACRO1(CLARKE_T *v);
 
 /*------------------- Private variables ---------------*/
 const int16_t hSin_Cos_Table[256] = SIN_COS_TABLE;
+
+/*
+ * 函数名：MCM_Trig_Functions
+ * 功能：根据输入的电气角度查表，返回该角度的 sin 和 cos。
+ *
+ * 输入：
+ *   hAngle：16 位有符号角度。一个完整电气周期为 65536 个计数：
+ *           0x0000 表示 0°，0x4000 表示 90°，
+ *           0x8000 表示 180°，0xC000 表示 270°。
+ *
+ * 输出：
+ *   hSin / hCos：Q15 定点数，+1.0 约等于 32767，-1.0 约等于 -32768。
+ *
+ * 查表原理：
+ *   正弦表只保存第一象限的 256 个点。
+ *   通过角度的象限位选择象限，再通过对称关系和正负号，
+ *   得到完整 0~360° 的 sin/cos，不需要调用浮点 sin()/cos()。
+ *
+ * 说明：
+ *   该函数是 Park/反 Park 的基础函数，不能因为当前不写 SMO 就删除。
+ */
+Trig_Components MCM_Trig_Functions(int16_t hAngle)
+{
+    s32 angle_index;
+    u16 table_index;
+    Trig_Components result;
+
+    /*
+     * 原角度格式的范围是 [-32768, 32767]。
+     * 加 32768 后映射为 [0, 65535]，再除以 64 得到 0~1023 的查表索引。
+     * 低 8 位作为第一象限表内索引，高 2 位表示当前角度所在象限。
+     */
+    angle_index = (s32)32768 + (s32)hAngle;
+    table_index = (u16)angle_index;
+    table_index = (u16)(table_index / 64u);
+
+    /*
+     * table_index & 0x0300 用来区分四个象限：
+     * 0x0200：第 1 象限，  0° ~  90°
+     * 0x0300：第 2 象限， 90° ~ 180°
+     * 0x0000：第 3 象限，180° ~ 270°
+     * 0x0100：第 4 象限，270° ~ 360°
+     *
+     * 各象限的正弦/余弦由第一象限表对称映射得出。
+     */
+    switch (table_index & SIN_MASK)
+    {
+        case U0_90:
+            result.hSin = hSin_Cos_Table[(u8)table_index];
+            result.hCos = hSin_Cos_Table[(u8)(0xFFu - (u8)table_index)];
+            break;
+
+        case U90_180:
+            result.hSin = hSin_Cos_Table[(u8)(0xFFu - (u8)table_index)];
+            result.hCos = (s16)-hSin_Cos_Table[(u8)table_index];
+            break;
+
+        case U180_270:
+            result.hSin = (s16)-hSin_Cos_Table[(u8)table_index];
+            result.hCos = (s16)-hSin_Cos_Table[(u8)(0xFFu - (u8)table_index)];
+            break;
+
+        case U270_360:
+            result.hSin = (s16)-hSin_Cos_Table[(u8)(0xFFu - (u8)table_index)];
+            result.hCos = hSin_Cos_Table[(u8)table_index];
+            break;
+
+        default:
+            /* 角度索引按 10 bit 处理，正常情况下不会进入此分支。 */
+            result.hSin = 0;
+            result.hCos = 32767;
+            break;
+    }
+
+    return result;
+}
+
 /*------------------ Private functions ----------------*/
 Trig_Components MCM_Trig_Functions(int16_t hAngle);
 

@@ -1,31 +1,36 @@
-#ifndef __IFCONTROL_H
-#define __IFCONTROL_H
+#ifndef __IF_CONTROL_H
+#define __IF_CONTROL_H
 
-#include "Math.h"
+#include "lcm32f039_type.h"
 
-#define IfModeCurrAMP  3000
-#define IfModeSwitchIqAmp 300//500
+/* Default learning values: recalibrate for the real motor and current scale. */
+#define IF_ALIGN_ANGLE_Q15        ((s16)0)
+#define IF_ALIGN_ID_Q14           ((s16)1000)
+#define IF_ALIGN_PWM_TICKS        ((u16)1200) /* 150 ms at 8 kHz */
 
-//#define IdLowSpeed	4096
-//#define IdHighSpeed (IdLowSpeed+2048)
+#define IF_TARGET_SPEED_Q14       ((s16)2000)
+#define IF_SPEED_RAMP_STEP_Q14    ((s16)10)
 
-#define IfSwitchSpeed 2000//3000//2000
+#define IF_TARGET_IQ_Q14          ((s16)3000)
+#define IF_IQ_RAMP_STEP_Q14       ((s16)30)
 
-#define CurrSwitchStep  30
+#define IF_CURRENT_REF_LIMIT_Q14  ((s16)6000)
+#define IF_RUN_ID_Q14             ((s16)0)
 
 typedef struct
 {
-	s16 ElectAngle;
-	s16 ReferSpeed;
-	s16 IqRef;
-}
-IfCurr_t;
+    s16 ElectAngle;     /* signed 16-bit electrical angle; one turn = 65536 */
+    s16 ReferSpeed;     /* Q14 electrical-frequency command */
+    s16 IqRef;          /* Q14 current reference */
+    u16 AlignCnt;       /* fast-loop alignment counter */
+} IfCurr_t;
 
 extern IfCurr_t IfStart;
 
-extern void IfInit(void);
-extern void IfAngleCalc(void);
-extern void IfSpeedCalc(void);
+void IfInit(void);
+void IfPrePosPrepare(void);
+void IfPrePosFinish(void);
+void IfSpeedCalc(void);
+void IfAngleCalc(void);
 
-#endif  /*__INITIAL_POSITION_DETECT_H*/
-/******************* (C) COPYRIGHT 2008 STMicroelectronics *****END OF FILE****/
+#endif

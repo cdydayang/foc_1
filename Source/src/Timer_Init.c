@@ -2,17 +2,10 @@
 #include "lcm32f039.h"
 #include "lcm32f039_rcc.h"
 #include "lcm32f039_gpio.h"
-#include "lcm32f039_opa.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "lcm32f039_tim.h"
 #include "lcm32f039_acmp.h"
-#include "lcm32f039_dac.h"
 #include "lcm32f039_dma.h"
-#include "lcm32f039_uart.h"
 #include "Timer_Init.h"
-#include "lcm32f039_type.h"
 #include "SysProtection.h"
 
 /*******************************************************************************
@@ -90,13 +83,13 @@ void TIM1_Config(void)
 		/* Enables the TIM1 Preload on CC5 Register */
 		TIM_OC5PreloadConfig(TIM1, TIM_OCPreload_Enable);
 
-		//ÉèÖÃCMPÉ²³µ
+		//è®¾ç½®CMPåˆ¹è½¦
 		//		sysctrl_access();
-		//		SYSCTRL->EDU_CFG4 |= (1 << 9); //±È½ÏÆ÷ACMP1×÷ÎªÉ²³µÔ´, ´¥·¢break1
+		//		SYSCTRL->EDU_CFG4 |= (1 << 9); //æ¯”è¾ƒå™¨ACMP1ä½œä¸ºåˆ¹è½¦æº, è§¦å‘break1
 		//		__dekey()
 
 		sysctrl_access();
-		SYSCTRL->EDU_CFG4 |= (1 << 17); //±È½ÏÆ÷ACMP1×÷ÎªÉ²³µÔ´£¬´¥·¢break2
+		SYSCTRL->EDU_CFG4 |= (1 << 17); //æ¯”è¾ƒå™¨ACMP1ä½œä¸ºåˆ¹è½¦æºï¼Œè§¦å‘break2
 		__dekey()
 
 
@@ -114,22 +107,22 @@ void TIM1_Config(void)
 		//	TIM1->BDTR |=(3<<24);
 
 		//		#if(Hardware_OCP_EN == 1)
-		//		TIM1->BDTR |=(1<<25);  //  ÅäÖÃÉ²³µ¼«ĞÔÎª¸ßµçÆ½ÓĞĞ§
-		//		TIM1->BDTR |=(0<<26);  //  AOE2²»Ê¹ÄÜ
-		//		TIM1->BDTR |=(1<<24);  //  É²³µ2 BK2EÊ¹ÄÜ
+		//		TIM1->BDTR |=(1<<25);  //  é…ç½®åˆ¹è½¦ææ€§ä¸ºé«˜ç”µå¹³æœ‰æ•ˆ
+		//		TIM1->BDTR |=(0<<26);  //  AOE2ä¸ä½¿èƒ½
+		//		TIM1->BDTR |=(1<<24);  //  åˆ¹è½¦2 BK2Eä½¿èƒ½
 		//		#endif
 
 		/* Main Output Enable */
 		TIM_CtrlPWMOutputs(TIM1, ENABLE);
 
-		/*Ê¹ÄÜÔ¤×°ÔØ*/
+		/*ä½¿èƒ½é¢„è£…è½½*/
 		TIM_ARRPreloadConfig(TIM1, ENABLE);
 
 		//  	TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
 
 		TIM1->CR2 |= TIM_MMS_OC4;
 
-		TIM_ITConfig(TIM1, TIM_DIER_BIE, ENABLE); //É²³µÖĞ¶ÏBIEÊ¹ÄÜ
+		TIM_ITConfig(TIM1, TIM_DIER_BIE, ENABLE); //åˆ¹è½¦ä¸­æ–­BIEä½¿èƒ½
 		//  	/* TIM1 counter enable */
 		//  	TIM_Cmd(TIM1, ENABLE);
 
@@ -142,8 +135,8 @@ void TIM1_Config(void)
 		TIM_CCxCmd(TIM1, TIM_Channel_4, TIM_CCx_Enable);
 		TIM_CCxCmd(TIM1, TIM_Channel_5, TIM_CCx_Enable);
 
-		TIM_ClearITPendingBit(TIM1, TIM_IT_CC5);//¿ªÖĞ¶ÏÇ°ÏÈÇå±êÖ¾Î»
-		TIM_ITConfig(TIM1, TIM_IT_CC5, ENABLE); //Ê¹ÄÜ±È½ÏÖĞ¶Ï	
+		TIM_ClearITPendingBit(TIM1, TIM_IT_CC5);//å¼€ä¸­æ–­å‰å…ˆæ¸…æ ‡å¿—ä½
+		TIM_ITConfig(TIM1, TIM_IT_CC5, ENABLE); //ä½¿èƒ½æ¯”è¾ƒä¸­æ–­	
 
 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_5); // TIM1_CH1   	pB7    
 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource5, GPIO_AF_3); // TIM1_CH2   	PB5   
@@ -177,17 +170,17 @@ void TIM1_Config(void)
 
 void BreakEnable(void)
 {
-	TIM1->BDTR |= (TIM_Break_Enable);//Bit 12 BKE: Break enable;±ØĞë´ò¿ª£¬²ÅÄÜÈí¼ş»òÓ²¼ş¹Ø±ÕPWM
-	//Çå³ıTIM1µÄÖĞ¶Ï´ı´¦ÀíÎ»
+	TIM1->BDTR |= (TIM_Break_Enable);//Bit 12 BKE: Break enable;å¿…é¡»æ‰“å¼€ï¼Œæ‰èƒ½è½¯ä»¶æˆ–ç¡¬ä»¶å…³é—­PWM
+	//æ¸…é™¤TIM1çš„ä¸­æ–­å¾…å¤„ç†ä½
   TIM_ClearITPendingBit(TIM1, TIM_IT_Break);
 	
-	//Ê¹ÄÜÖ¸¶¨µÄTIMÖĞ¶Ï
+	//ä½¿èƒ½æŒ‡å®šçš„TIMä¸­æ–­
   TIM_ITConfig(TIM1, TIM_IT_Break,ENABLE);
 }
 
 void BreakDisable(void)
 {
-	TIM1->BDTR &= (~TIM_Break_Enable);//Bit 12 BKE: Break enable;±ØĞë´ò¿ª£¬²ÅÄÜÈí¼ş»òÓ²¼ş¹Ø±ÕPWM
+	TIM1->BDTR &= (~TIM_Break_Enable);//Bit 12 BKE: Break enable;å¿…é¡»æ‰“å¼€ï¼Œæ‰èƒ½è½¯ä»¶æˆ–ç¡¬ä»¶å…³é—­PWM
 }
 
 void TIMCounterStart(void)

@@ -7,15 +7,9 @@
 
 #include "SVPWM.h"
 #include "Math.h"
-#include "CurrentLoop.h"
-#include "Estimation.h"
-#include "User_PeripheralInit.h"
+#include "function.h"
 #include "lcm32f039_tim.h"
 #include "lcm32f039_div.h"
-#include "Pump_Function.h"
-#include "SpeedLoop.h"
-#include "PI_Regulator.h"
-#include "function.h"
 #include "Timer_Init.h"
 
 pwm_t PWM_Calc;
@@ -47,7 +41,7 @@ void Invter_Calc(void)
 #define c180To240Degree 	1
 #define c240To300Degree		3
 #define c300To360Degree		2
-#define MIN_PULSE_WIDTH 	500//Êä³ö²à²ÉÑù£¬Ã»ÓĞ×îĞ¡Âö¿í
+#define MIN_PULSE_WIDTH 	500//è¾“å‡ºä¾§é‡‡æ ·ï¼Œæ²¡æœ‰æœ€å°è„‰å®½
 	
 	s16 A,B,C;
 	
@@ -60,7 +54,14 @@ void Invter_Calc(void)
 
 	#if (BUS_Detect_En == 1)	
 	temp2 = SQRT3<<10;
-	temp1 = Fun_32_DIV_32(temp2, SysPara.DcBusFiltered, &result0);
+    if (SysPara.DcBusFiltered <= 0)
+    {
+        temp1 = 1024;
+    }
+    else
+    {
+        temp1 = Fun_32_DIV_32(temp2, SysPara.DcBusFiltered, &result0);
+    }
 
 	//temp1 = (s16)((SQRT3<<10)/SysPara.DcBusFiltered);//q10
 	#else
@@ -238,7 +239,7 @@ void Invter_Calc(void)
 
 void Update_PWM(void)
 {
-	TIM1->CCR1 = PWM_Calc.UCMP;//´óĞ¡Ö±½Ó´ú±íÏÂÇÅµÄÕ¼¿Õ±È	
+	TIM1->CCR1 = PWM_Calc.UCMP;//å¤§å°ç›´æ¥ä»£è¡¨ä¸‹æ¡¥çš„å ç©ºæ¯”	
 	TIM1->CCR2 = PWM_Calc.VCMP;//*3/2
 	TIM1->CCR3 = PWM_Calc.WCMP;//*3/2
 	
@@ -257,7 +258,7 @@ void PWMOutputs_ENABLE(void)
 	TIM1->EGR&= ~0x0080;
 	TIM1->BDTR|= 1<<15;
 	
-	TIM1->CCER = 0X1555;//È«¿ª1555£¬Ö»¿ªÏÂ1CCC£¬Ç§ÍòÇø·Ö1555ºÍ1CCC£»
+	TIM1->CCER = 0X1555;//å…¨å¼€1555ï¼Œåªå¼€ä¸‹1CCCï¼Œåƒä¸‡åŒºåˆ†1555å’Œ1CCCï¼›
 }
 
 void PWMOutputs_DISABLE(void)

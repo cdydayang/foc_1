@@ -1,11 +1,7 @@
-#ifndef __CURRENTLOOP_H
-#define __CURRENTLOOP_H
+#ifndef __CURRENT_LOOP_H
+#define __CURRENT_LOOP_H
 
-#include "CurrentLoop.h"
-#include "Math.h"
-
-extern void Inside_Loop_Init(void);
-extern void InsideLoopCalc(void);
-
+void Inside_Loop_Init(void);
+void InsideLoopCalc(void);
 
 #endif

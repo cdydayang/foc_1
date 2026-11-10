@@ -1,16 +1,10 @@
 #ifndef __ADC_CALC_H
 #define __ADC_CALC_H
 
-#include "ADC_Calc.h"
-#include "Math.h"
+#include "lcm32f039_type.h"
 
-#define INV_SQRT3	  			4728//Q13
-#define SQRT3 		   			14188//Q13
+extern volatile u8 ADC_OffsetReady;
 
-#define SAMPLE_CURR_LPF_EN		1//0//1//0//1
-
-extern void ADC_Sample_Calc(void);
-
-extern void PowerOnInit(void);
+void ADC_Sample_Calc(void);
 
 #endif

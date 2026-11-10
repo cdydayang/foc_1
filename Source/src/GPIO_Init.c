@@ -18,10 +18,10 @@
 void GPIO_Config(void)
 {
 	GPIO_InitTypeDef       GPIO_InitStruct;
-	  /* µÚ1²½£º´ò¿ª GPIO µÄÊ±ÖÓ */	
+	  /* ç¬¬1æ­¥ï¼šæ‰“å¼€ GPIO çš„æ—¶é’Ÿ */	
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB | RCC_AHBPeriph_GPIOC | RCC_AHBPeriph_GPIOF , ENABLE);
 
-//UVW ÉÏÏÂÇÅ¿ØÖÆ
+//UVW ä¸Šä¸‹æ¡¥æŽ§åˆ¶
 	GPIO_ResetBits(GPIOB, GPIO_Pin_7 );
 	GPIO_ResetBits(GPIOB, GPIO_Pin_5 );
 	GPIO_ResetBits(GPIOB, GPIO_Pin_3 );
@@ -30,7 +30,16 @@ void GPIO_Config(void)
 	GPIO_ResetBits(GPIOB, GPIO_Pin_4 );
 	GPIO_ResetBits(GPIOA, GPIO_Pin_15 );
 
-//PF8 start key
+/* PA3 analog input: DC-bus voltage ADC channel. */
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_1);
+    gpio.GPIO_Pin = GPIO_Pin_3;
+    gpio.GPIO_Mode = GPIO_Mode_AN;
+    gpio.GPIO_Speed = GPIO_Speed_Level_2;
+    gpio.GPIO_OType = GPIO_OType_PP;
+    gpio.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    GPIO_Init(GPIOA, &gpio);
+
+    //PF8 start key
 	GPIO_InitStruct.GPIO_Pin  = GPIO_Pin_8;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_Level_2;
@@ -46,7 +55,7 @@ void GPIO_Config(void)
 	GPIO_InitStruct.GPIO_PuPd =  GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOC,&GPIO_InitStruct);
 
-//PA1  ÐýÅ¥  AD1
+//PA1  æ—‹é’®  AD1
 	GPIO_PinAFConfig(GPIOA,GPIO_PinSource1, GPIO_AF_1);  
 	GPIO_InitStruct.GPIO_Pin  = GPIO_Pin_1;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AN;

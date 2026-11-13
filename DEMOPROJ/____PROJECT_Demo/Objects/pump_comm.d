@@ -1,0 +1,9 @@
+.\objects\pump_comm.o: ..\..\PumpComm\src\Pump_Comm.c
+.\objects\pump_comm.o: ..\..\PumpComm\inc\Pump_Comm.h
+.\objects\pump_comm.o: D:\soft\keil\core_data\ARM\ARMCLANG5\Bin\..\include\stdint.h
+.\objects\pump_comm.o: ..\..\PumpComm\inc\Pump_Function.h
+.\objects\pump_comm.o: ..\..\Function\inc\math.h
+.\objects\pump_comm.o: ..\..\Source\inc\lcm32f039_type.h
+.\objects\pump_comm.o: D:\soft\keil\core_data\ARM\ARMCLANG5\Bin\..\include\string.h
+.\objects\pump_comm.o: ..\..\Function\inc\function.h
+.\objects\pump_comm.o: ..\..\Function\inc\function.h

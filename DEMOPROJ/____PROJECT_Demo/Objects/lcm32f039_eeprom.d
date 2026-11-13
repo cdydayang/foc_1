@@ -1,0 +1,16 @@
+.\objects\lcm32f039_eeprom.o: ..\..\Driver\src\lcm32f039_eeprom.c
+.\objects\lcm32f039_eeprom.o: ..\..\Driver\inc\lcm32f039_eeprom.h
+.\objects\lcm32f039_eeprom.o: ..\..\Device\Include\LCM32F039.h
+.\objects\lcm32f039_eeprom.o: ..\..\Device\Include\core_cm0.h
+.\objects\lcm32f039_eeprom.o: D:\soft\keil\core_data\ARM\ARMCLANG5\Bin\..\include\stdint.h
+.\objects\lcm32f039_eeprom.o: ..\..\Device\Include\core_cmInstr.h
+.\objects\lcm32f039_eeprom.o: ..\..\Device\Include\cmsis_armcc.h
+.\objects\lcm32f039_eeprom.o: ..\..\Device\Include\core_cmFunc.h
+.\objects\lcm32f039_eeprom.o: ..\..\Device\Include\lcm32f039_conf.h
+.\objects\lcm32f039_eeprom.o: ..\..\Driver\inc\lcm32f039_rcc.h
+.\objects\lcm32f039_eeprom.o: ..\..\Device\Include\lcm32f039.h
+.\objects\lcm32f039_eeprom.o: ..\..\Device\Include\lcm32f039_conf.h
+.\objects\lcm32f039_eeprom.o: ..\..\Driver\inc\lcm32f039_uart.h
+.\objects\lcm32f039_eeprom.o: ..\..\Driver\inc\lcm32f039_gpio.h
+.\objects\lcm32f039_eeprom.o: ..\..\Driver\inc\lcm32f039_adc.h
+.\objects\lcm32f039_eeprom.o: ..\..\Driver\inc\lcm32f039_flash.h

@@ -1,0 +1,12 @@
+.\objects\estimation.o: ..\..\MotorLib\src\Estimation.c
+.\objects\estimation.o: ..\..\Function\inc\CurrentLoop.h
+.\objects\estimation.o: ..\..\Function\inc\CurrentLoop.h
+.\objects\estimation.o: ..\..\Function\inc\Math.h
+.\objects\estimation.o: D:\soft\keil\core_data\ARM\ARMCLANG5\Bin\..\include\stdint.h
+.\objects\estimation.o: ..\..\Source\inc\lcm32f039_type.h
+.\objects\estimation.o: ..\..\Function\inc\function.h
+.\objects\estimation.o: ..\..\Function\inc\function.h
+.\objects\estimation.o: ..\..\MotorLib\inc\Estimation.h
+.\objects\estimation.o: ..\..\Function\inc\PI_Regulator.h
+.\objects\estimation.o: ..\..\Function\inc\PI_Regulator.h
+.\objects\estimation.o: ..\..\Function\inc\IfControl.h

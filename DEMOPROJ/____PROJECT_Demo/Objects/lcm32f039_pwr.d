@@ -1,0 +1,15 @@
+.\objects\lcm32f039_pwr.o: ..\..\Driver\src\lcm32f039_pwr.c
+.\objects\lcm32f039_pwr.o: ..\..\Driver\inc\lcm32f039_pwr.h
+.\objects\lcm32f039_pwr.o: ..\..\Driver\inc\lcm32f039_rcc.h
+.\objects\lcm32f039_pwr.o: ..\..\Device\Include\lcm32f039.h
+.\objects\lcm32f039_pwr.o: ..\..\Device\Include\core_cm0.h
+.\objects\lcm32f039_pwr.o: D:\soft\keil\core_data\ARM\ARMCLANG5\Bin\..\include\stdint.h
+.\objects\lcm32f039_pwr.o: ..\..\Device\Include\core_cmInstr.h
+.\objects\lcm32f039_pwr.o: ..\..\Device\Include\cmsis_armcc.h
+.\objects\lcm32f039_pwr.o: ..\..\Device\Include\core_cmFunc.h
+.\objects\lcm32f039_pwr.o: ..\..\Device\Include\lcm32f039_conf.h
+.\objects\lcm32f039_pwr.o: ..\..\Driver\inc\lcm32f039_rcc.h
+.\objects\lcm32f039_pwr.o: ..\..\Driver\inc\lcm32f039_uart.h
+.\objects\lcm32f039_pwr.o: ..\..\Device\Include\lcm32f039.h
+.\objects\lcm32f039_pwr.o: ..\..\Driver\inc\lcm32f039_gpio.h
+.\objects\lcm32f039_pwr.o: ..\..\Driver\inc\lcm32f039_adc.h

@@ -1,0 +1,13 @@
+.\objects\ifcontrol.o: ..\..\Function\src\IfControl.c
+.\objects\ifcontrol.o: ..\..\Function\inc\IfControl.h
+.\objects\ifcontrol.o: ..\..\Function\inc\Math.h
+.\objects\ifcontrol.o: D:\soft\keil\core_data\ARM\ARMCLANG5\Bin\..\include\stdint.h
+.\objects\ifcontrol.o: ..\..\Source\inc\lcm32f039_type.h
+.\objects\ifcontrol.o: ..\..\Function\inc\function.h
+.\objects\ifcontrol.o: ..\..\Function\inc\function.h
+.\objects\ifcontrol.o: ..\..\MotorLib\inc\Estimation.h
+.\objects\ifcontrol.o: ..\..\Function\inc\CurrentLoop.h
+.\objects\ifcontrol.o: ..\..\Function\inc\CurrentLoop.h
+.\objects\ifcontrol.o: ..\..\Function\inc\PI_Regulator.h
+.\objects\ifcontrol.o: ..\..\Function\inc\PI_Regulator.h
+.\objects\ifcontrol.o: ..\..\Function\inc\SpeedLoop.h

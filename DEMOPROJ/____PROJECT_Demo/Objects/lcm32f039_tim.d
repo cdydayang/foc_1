@@ -1,0 +1,17 @@
+.\objects\lcm32f039_tim.o: ..\..\Driver\src\lcm32f039_tim.c
+.\objects\lcm32f039_tim.o: D:\soft\keil\core_data\ARM\ARMCLANG5\Bin\..\include\stdio.h
+.\objects\lcm32f039_tim.o: ..\..\Device\Include\lcm32f039.h
+.\objects\lcm32f039_tim.o: ..\..\Device\Include\core_cm0.h
+.\objects\lcm32f039_tim.o: D:\soft\keil\core_data\ARM\ARMCLANG5\Bin\..\include\stdint.h
+.\objects\lcm32f039_tim.o: ..\..\Device\Include\core_cmInstr.h
+.\objects\lcm32f039_tim.o: ..\..\Device\Include\cmsis_armcc.h
+.\objects\lcm32f039_tim.o: ..\..\Device\Include\core_cmFunc.h
+.\objects\lcm32f039_tim.o: ..\..\Device\Include\lcm32f039_conf.h
+.\objects\lcm32f039_tim.o: ..\..\Driver\inc\lcm32f039_rcc.h
+.\objects\lcm32f039_tim.o: ..\..\Device\Include\lcm32f039.h
+.\objects\lcm32f039_tim.o: ..\..\Device\Include\lcm32f039_conf.h
+.\objects\lcm32f039_tim.o: ..\..\Driver\inc\lcm32f039_uart.h
+.\objects\lcm32f039_tim.o: ..\..\Driver\inc\lcm32f039_gpio.h
+.\objects\lcm32f039_tim.o: ..\..\Driver\inc\lcm32f039_adc.h
+.\objects\lcm32f039_tim.o: ..\..\Driver\inc\lcm32f039_tim.h
+.\objects\lcm32f039_tim.o: ..\..\Device\Include\core_cm0.h
